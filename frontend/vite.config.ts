@@ -3,7 +3,19 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
+// 👇 Ajoute ce middleware custom
+const fixManifestContentType = () => ({
+  name: "fix-manifest-content-type",
+  configureServer(server) {
+    server.middlewares.use((req, res, next) => {
+      if (req.url === "/manifest.json") {
+        res.setHeader("Content-Type", "application/manifest+json");
+      }
+      next();
+    });
+  },
+});
+
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
@@ -11,8 +23,8 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    mode === "development" && componentTagger(),
+    fixManifestContentType(), // 👈 Ajout ici
   ].filter(Boolean),
   resolve: {
     alias: {

@@ -182,7 +182,7 @@ export default function GeneratePlaylist() {
               {/* Music Style Tags */}
               <div className="space-y-3">
                 <Label className="text-base font-medium">Music Styles</Label>
-                <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                <div className="flex flex-wrap gap-2 max-h-100 overflow-y-auto">
                   {musicTags.map((tag) => (
                     <motion.div key={tag} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <Badge
@@ -204,7 +204,7 @@ export default function GeneratePlaylist() {
               {/* Mood Tags */}
               <div className="space-y-3">
                 <Label className="text-base font-medium">Moods</Label>
-                <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                <div className="flex flex-wrap gap-2 max-h-100 overflow-y-auto">
                   {moodTags.map((tag) => (
                     <motion.div key={tag} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <Badge
@@ -224,7 +224,7 @@ export default function GeneratePlaylist() {
               </div>
 
               {/* Selected Tags Preview */}
-              {selectedTags.length > 0 && (
+              {/* {selectedTags.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
@@ -239,13 +239,13 @@ export default function GeneratePlaylist() {
                     ))}
                   </div>
                 </motion.div>
-              )}
+              )} */}
 
               {/* Playlist Length */}
               <div className="space-y-3">
                 <Label className="text-base font-medium">Playlist Length</Label>
                 <div className="flex gap-2">
-                  {[3, 5, 8, 10].map((length) => (
+                  {[3, 5, 8, 10, 15, 20].map((length) => (
                     <Button
                       key={length}
                       variant={playlistLength === length ? "default" : "outline"}
