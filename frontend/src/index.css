@@ -1,6 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap');
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
 
 /* Vibely.io Design System - Dark-first AI playlist generator with gradient theme */
 
@@ -124,6 +129,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    /* font-family: 'Orbitron', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; */
   }
 
   /* Set dark mode as default */

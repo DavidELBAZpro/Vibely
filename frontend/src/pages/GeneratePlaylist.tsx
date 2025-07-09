@@ -11,6 +11,17 @@ import { useStore, Playlist, Track } from '../store/useStore';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
+export interface OpenApiResponse {
+  playlist: {
+    playlistTitle: string;
+    tracks: Array<{
+      title: string;
+      artist: string;
+      youtubeLink: string;
+    }>;
+  };
+}
+
 const musicTags = [
   'House', 'Pop', 'Rock', 'AfroHouse', 'DeepHouse', 'Disco', 'Funk', 'Techno', 'Reggaeton', 'Trap'
 ];
@@ -60,42 +71,31 @@ export default function GeneratePlaylist() {
         description: "Our AI is crafting your perfect playlist. This may take a moment.",
       });
 
-      // Simulate API call with mock data
-      await new Promise(resolve => setTimeout(resolve, 3000));
 
-      // Mock playlist generation
-      const mockTracks: Track[] = [
-        {
-          title: "The Light",
-          artist: "Francis Mercier",
-          youtubeLink: "https://youtube.com/watch?v=dQw4w9WgXcQ"
-        },
-        {
-          title: "Midnight City",
-          artist: "M83",
-          youtubeLink: "https://youtube.com/watch?v=dQw4w9WgXcQ"
-        },
-        {
-          title: "Strobe",
-          artist: "Deadmau5",
-          youtubeLink: "https://youtube.com/watch?v=dQw4w9WgXcQ"
-        },
-        {
-          title: "One More Time",
-          artist: "Daft Punk",
-          youtubeLink: "https://youtube.com/watch?v=dQw4w9WgXcQ"
-        },
-        {
-          title: "Around The World",
-          artist: "Daft Punk",
-          youtubeLink: "https://youtube.com/watch?v=dQw4w9WgXcQ"
-        }
-      ];
+      // API call
+    const response = await fetch('http://localhost:8000/generate-playlist', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: prompt.trim(),
+        length: playlistLength,
+        tags: selectedTags,
+      }),
+    });
 
+    if (!response.ok) {
+      throw new Error('Failed to generate playlist');
+    }
+
+    const data: OpenApiResponse = await response.json();
+
+      
       const newPlaylist: Playlist = {
         id: Date.now().toString(),
-        name: `AI Playlist ${new Date().toLocaleDateString()}`,
-        tracks: mockTracks.slice(0, playlistLength),
+        name: data.playlist.playlistTitle || `Generated Playlist ${new Date().toLocaleDateString()}`,
+        tracks: data.playlist.tracks || [],
         prompt: prompt.trim(),
         tags: selectedTags,
         createdAt: new Date().toISOString()
