@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ExternalLink, Music, Play } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Music, Play, Youtube } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { useStore } from '../store/useStore';
@@ -140,7 +140,8 @@ export default function PlaylistDetail() {
                             rel="noopener noreferrer"
                             aria-label={`Listen to ${track.title} by ${track.artist} on YouTube`}
                           >
-                            <ExternalLink className="w-5 h-5" />
+                            <Youtube className="w-7 h-7" />
+                            
                           </a>
                         </Button>
                       </div>

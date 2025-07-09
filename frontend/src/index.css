@@ -12,7 +12,7 @@
 @layer base {
   :root {
     /* Light mode (secondary) */
-    --background: 0 0% 100%;
+    --background: 225 80% 100%;
     --foreground: 225 25% 15%;
 
     --card: 0 0% 100%;
