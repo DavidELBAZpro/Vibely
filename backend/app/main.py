@@ -17,7 +17,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/generate-playlist")
 async def create_playlist(data: PromptRequest):
-    playlist = await generate_playlist(data.prompt)
+    playlist = await generate_playlist(data.prompt, data.length)
     return {"playlist": playlist}

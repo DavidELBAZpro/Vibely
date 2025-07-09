@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class PromptRequest(BaseModel):
     prompt: str
-    length: int  
+    length: int
