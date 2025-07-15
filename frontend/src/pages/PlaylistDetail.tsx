@@ -1,12 +1,18 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, ExternalLink, Music, Play, Youtube } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSpotify } from '@fortawesome/free-brands-svg-icons'
-import { useStore } from '../store/useStore';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowLeft, ExternalLink, Music, Play, Youtube } from "lucide-react";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpotify } from "@fortawesome/free-brands-svg-icons";
+import { Spotify } from "react-spotify-embed";
+import { useStore } from "../store/useStore";
 
 export default function PlaylistDetail() {
   const { id } = useParams<{ id: string }>();
@@ -16,7 +22,7 @@ export default function PlaylistDetail() {
 
   useEffect(() => {
     if (id) {
-      const foundPlaylist = playlists.find(p => p.id === id);
+      const foundPlaylist = playlists.find((p) => p.id === id);
       setPlaylist(foundPlaylist);
     }
   }, [id, playlists]);
@@ -50,7 +56,7 @@ export default function PlaylistDetail() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/my-playlists')}
+              onClick={() => navigate("/my-playlists")}
               className="hover:bg-muted/50"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -75,22 +81,30 @@ export default function PlaylistDetail() {
                     <CardTitle className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                       {playlist.name}
                     </CardTitle>
-                    <p className="text-muted-foreground">{playlist.tracks.length} tracks</p>
+                    <p className="text-muted-foreground">
+                      {playlist.tracks.length} tracks
+                    </p>
                     <div className="text-sm text-muted-foreground">
-                      Created {new Date(playlist.createdAt).toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
+                      Created{" "}
+                      {new Date(playlist.createdAt).toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        }
+                      )}
                     </div>
                   </div>
                 </div>
               </CardHeader>
-              
+
               {playlist.prompt && (
                 <CardContent className="pt-0">
                   <div className="p-4 rounded-lg bg-muted/30">
-                    <h4 className="text-sm font-medium mb-2 text-muted-foreground">Original Prompt:</h4>
+                    <h4 className="text-sm font-medium mb-2 text-muted-foreground">
+                      Original Prompt:
+                    </h4>
                     <p className="text-sm">{playlist.prompt}</p>
                   </div>
                 </CardContent>
@@ -108,7 +122,7 @@ export default function PlaylistDetail() {
               <Play className="w-6 h-6 text-primary" />
               <span>Tracks</span>
             </h3>
-            
+
             <div className="space-y-3">
               {playlist.tracks.map((track: any, index: number) => (
                 <motion.div
@@ -125,36 +139,54 @@ export default function PlaylistDetail() {
                             {index + 1}
                           </div>
                           <div className="space-y-1">
-                            <h4 className="font-semibold text-lg">{track.title}</h4>
-                            <p className="text-muted-foreground">{track.artist}</p>
+                            <h4 className="font-semibold text-lg">
+                              {track.title}
+                            </h4>
+                            <p className="text-muted-foreground">
+                              {track.artist}
+                            </p>
                           </div>
                         </div>
-                        
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          asChild
-                          className="hover:bg-primary/10 hover:text-primary transition-smooth"
-                        >
-                          <a
-                            href={track.youtubeLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`Listen to ${track.title} by ${track.artist} on YouTube`}
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            asChild
+                            className="hover:bg-primary/10 hover:text-primary transition-smooth"
                           >
-                            <Youtube className="w-7 h-7" />
-                            
-                          </a>
-                          <a
-                            href={track.spotifyLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`Listen to ${track.title} by ${track.artist} on YouTube`}
+                            <a
+                              href={track.youtubeLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`Listen to ${track.title} by ${track.artist} on YouTube`}
+                            >
+                              <Youtube className="w-7 h-7" />
+                            </a>
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            asChild
+                            className="hover:bg-green-100 hover:text-green-600 transition-smooth"
                           >
-                            <FontAwesomeIcon icon={faSpotify} />
-                            
-                          </a>
-                        </Button>
+                            <a
+                              href={track.spotifyLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`Listen to ${track.title} by ${track.artist} on Spotify`}
+                            >
+                              <FontAwesomeIcon
+                                icon={faSpotify}
+                                className="w-5 h-5"
+                              />
+                            </a>
+                          </Button>
+                          <Spotify
+                            link={track.spotifyLink}
+                            style={{ width: "100%", height: "80px" }}
+                          />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
