@@ -1,6 +1,7 @@
 from openai import AsyncOpenAI
 import urllib.parse
 import json
+from app.spotify.search import search_spotify_track
 from app.config import OPENAI_API_KEY
 
 client = AsyncOpenAI(api_key=OPENAI_API_KEY)
@@ -61,6 +62,8 @@ async def generate_playlist(prompt: str, length: int, tags: list[str]) -> list[d
         data = json.loads(playlist_raw)
         for track in data["tracks"]:
             track["youtubeLink"] = generate_youtube_search_link(track["title"], track["artist"])
+            track["spotifyLink"] = await search_spotify_track(track["title"], track["artist"])
+
         return data
     except json.JSONDecodeError as e:
         print("❌ JSON Parsing Error:", e)

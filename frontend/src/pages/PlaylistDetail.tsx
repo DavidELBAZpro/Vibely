@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, ExternalLink, Music, Play, Youtube } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSpotify } from '@fortawesome/free-brands-svg-icons'
 import { useStore } from '../store/useStore';
 
 export default function PlaylistDetail() {
@@ -141,6 +143,15 @@ export default function PlaylistDetail() {
                             aria-label={`Listen to ${track.title} by ${track.artist} on YouTube`}
                           >
                             <Youtube className="w-7 h-7" />
+                            
+                          </a>
+                          <a
+                            href={track.spotifyLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Listen to ${track.title} by ${track.artist} on YouTube`}
+                          >
+                            <FontAwesomeIcon icon={faSpotify} />
                             
                           </a>
                         </Button>
