@@ -184,7 +184,7 @@ export default function PlaylistDetail() {
                           </Button>
                           <Spotify
                             link={track.spotifyLink}
-                            style={{ width: "100%", height: "80px" }}
+                            style={{ width: "130%", height: "80px" }}
                           />
                         </div>
                       </div>

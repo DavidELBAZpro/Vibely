@@ -18,7 +18,7 @@ const fixManifestContentType = () => ({
 
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
+    host: true,
     port: 8080,
   },
   plugins: [

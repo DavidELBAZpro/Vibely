@@ -73,7 +73,7 @@ export default function GeneratePlaylist() {
 
 
       // API call
-    const response = await fetch('http://localhost:8000/generate-playlist', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/generate-playlist`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
