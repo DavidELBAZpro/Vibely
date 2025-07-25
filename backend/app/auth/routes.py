@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request, Query, Header
 from fastapi.responses import RedirectResponse
 from app.auth.supabase_client import supabase
+from app.auth.token_utils import verify_token
 import uuid
 from datetime import datetime, timezone
 
@@ -84,37 +85,54 @@ async def auth_callback(request: Request):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-
 @router.get("/me")
 def get_current_user(Authorization: str = Header(...)):
     """
-    Returns the authenticated user's profile and credits using the access token.
+    Returns the authenticated user's profile and credits using verified JWT.
     """
     try:
+        # 1️⃣ Check token format
         if not Authorization.startswith("Bearer "):
             raise HTTPException(status_code=401, detail="Invalid token format")
+
         token = Authorization.split(" ")[1]
 
-        # Get user from token
-        user_res = supabase.auth.get_user(token)
-        user = user_res.user
-        if not user:
-            raise HTTPException(status_code=401, detail="Invalid or expired token")
+        # 2️⃣ Verify JWT signature and expiration
+        payload = verify_token(token)
+        user_id = payload.get("sub")   # sub = user ID in Supabase
+        email = payload.get("email")
 
-        # Get profile
-        profile = supabase.table("profiles").select("*").eq("user_id", user.id).single().execute()
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+
+        # 3️⃣ Fetch user profile from DB
+        profile = (
+            supabase.table("profiles")
+            .select("*")
+            .eq("user_id", user_id)
+            .single()
+            .execute()
+        )
         if not profile.data:
             raise HTTPException(status_code=404, detail="Profile not found")
 
-        # Get credits
-        credits = supabase.table("user_credits").select("credits").eq("user_id", user.id).single().execute()
+        # 4️⃣ Fetch user credits
+        credits = (
+            supabase.table("user_credits")
+            .select("credits")
+            .eq("user_id", user_id)
+            .single()
+            .execute()
+        )
 
         return {
-            "id": user.id,
-            "email": user.email,
+            "id": user_id,
+            "email": email,
             "profile": profile.data,
-            "credits": credits.data.get("credits", 0) if credits.data else 0
+            "credits": credits.data.get("credits", 0) if credits.data else 0,
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error fetching user: {e}")
