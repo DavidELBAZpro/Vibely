@@ -4,6 +4,8 @@ from app.schemas import PromptRequest
 from app.openai_utils import generate_playlist
 import os
 from app.auth.supabase_client import supabase
+from backend.app.auth import routes
+
 
 print("✅ Supabase client prêt :", supabase)
 
@@ -20,6 +22,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Register the authentication routes
+app.include_router(routes.router)
 
 @app.post("/generate-playlist")
 async def create_playlist(data: PromptRequest):
