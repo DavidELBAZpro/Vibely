@@ -4,7 +4,7 @@ from app.schemas import PromptRequest
 from app.openai_utils import generate_playlist
 import os
 from app.auth.supabase_client import supabase
-from backend.app.auth import routes
+from app.auth import routes
 
 
 print("✅ Supabase client prêt :", supabase)

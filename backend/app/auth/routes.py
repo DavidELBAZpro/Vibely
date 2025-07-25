@@ -5,17 +5,22 @@ import uuid
 from datetime import datetime, timezone
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
-
+state_store = set()
 
 @router.get("/login")
 def login(provider: str = Query(..., description="Auth provider (google, github, etc.)")):
     """Returns the redirection URL for the selected provider (Google, GitHub, etc.)"""
     try:
+         # Generate unique state
+        state = str(uuid.uuid4())
+        state_store.add(state)
         redirect_url = "http://localhost:8000/auth/callback"
         res = supabase.auth.sign_in_with_oauth({
             "provider": provider,
             "options": {
-                "redirectTo": redirect_url
+                "redirectTo": redirect_url,
+                 "scopes": "email",
+                "queryParams": {"state": state}  # send the state                
             }
         })
         return {"url": res.url}
@@ -31,8 +36,15 @@ async def auth_callback(request: Request):
     """Handles the OAuth callback, stores user in profiles and user_credits if new."""
     try:
         code = request.query_params.get("code")
+        state = request.query_params.get("state")
         if not code:
             raise HTTPException(status_code=400, detail="Missing 'code' in callback URL")
+        
+        if state not in state_store:
+            raise HTTPException(status_code=403, detail="Invalid state")
+        
+        # Clean up used state
+        state_store.remove(state)
 
         res = supabase.auth.exchange_code_for_session(code)
         session = res.session
