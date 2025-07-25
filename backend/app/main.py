@@ -26,7 +26,7 @@ app.add_middleware(
 )
 
 # Register the authentication routes
-app.include_router(routes.router)
+app.include_router(auth_routes.router)
 
 @app.post("/generate-playlist")
 async def create_playlist(data: PromptRequest):
