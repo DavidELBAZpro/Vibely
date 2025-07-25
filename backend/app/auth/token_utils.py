@@ -2,8 +2,8 @@ import jwt
 import requests
 from fastapi import HTTPException
 import os
+from app.config import SUPABASE_JWKS_URL
 
-SUPABASE_JWKS_URL = os.getenv("SUPABASE_JWKS_URL", "https://zkrocrrpjjvyuqagxrkd.supabase.co/auth/v1/jwks")
 jwks_cache = None
 
 def get_jwks():

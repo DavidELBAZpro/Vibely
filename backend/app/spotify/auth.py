@@ -2,11 +2,11 @@ import base64
 import requests
 import os
 from dotenv import load_dotenv
+from app.config import API_VERSION, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
+
 
 load_dotenv()
 
-SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
-SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 
 _token_cache = None
 

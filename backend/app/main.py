@@ -5,12 +5,13 @@ from app.openai_utils import generate_playlist
 import os
 from app.auth.supabase_client import supabase
 from app.auth import routes as auth_routes
+from app.config import API_VERSION
 
-API_VERSION = os.getenv("API_VERSION", "test")
 
 print("✅ Supabase client prêt :", supabase)
 
 app = FastAPI()
+# Register the authentication routes
 app.include_router(auth_routes.router, prefix=f"/{API_VERSION}")
 # app.include_router(other_routes.router, prefix=f"/{API_VERSION}") 
 
@@ -25,8 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register the authentication routes
-app.include_router(auth_routes.router)
+
 
 @app.post("/generate-playlist")
 async def create_playlist(data: PromptRequest):

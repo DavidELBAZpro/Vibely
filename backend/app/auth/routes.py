@@ -4,6 +4,12 @@ from app.auth.supabase_client import supabase
 from app.auth.token_utils import verify_token
 import uuid
 from datetime import datetime, timezone
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+API_VERSION = os.getenv("API_VERSION", "test")
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 state_store = set()
