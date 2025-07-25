@@ -1,18 +1,46 @@
-import { Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Moon, Sun, Music, List, Home } from 'lucide-react';
-import { Button } from './ui/button';
-import { useStore } from '../store/useStore';
+import { Link, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  Moon,
+  Sun,
+  Music,
+  List,
+  Home,
+  LogIn,
+  LogOut,
+  CreditCard,
+  User,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { useStore } from "../store/useStore";
+import { useAuth } from "../contexts/AuthContext";
+import { useCredits } from "../contexts/CreditContext";
 
 export function Navigation() {
   const location = useLocation();
   const { isDarkMode, toggleTheme } = useStore();
+  const { user, signOut } = useAuth();
+  const { credits } = useCredits();
 
   const navItems = [
-    { path: '/', icon: Home, label: 'Home' },
-    { path: '/generate-playlist', icon: Music, label: 'Generate' },
-    { path: '/my-playlists', icon: List, label: 'My Playlists' },
+    { path: "/", icon: Home, label: "Home" },
+    ...(user
+      ? [
+          { path: "/generate-playlist", icon: Music, label: "Generate" },
+          { path: "/my-playlists", icon: List, label: "My Playlists" },
+          { path: "/pricing", icon: CreditCard, label: "Credits" },
+        ]
+      : []),
   ];
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
     <motion.nav
@@ -42,15 +70,21 @@ export function Navigation() {
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
-            
+
             return (
-              <motion.div key={item.path} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                key={item.path}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Link to={item.path}>
                   <Button
                     variant={isActive ? "default" : "ghost"}
                     size="sm"
                     className={`flex items-center space-x-2 transition-smooth ${
-                      isActive ? 'gradient-primary text-white shadow-glow-primary' : ''
+                      isActive
+                        ? "gradient-primary text-white shadow-glow-primary"
+                        : ""
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -60,7 +94,42 @@ export function Navigation() {
               </motion.div>
             );
           })}
-          
+
+          {/* Credits Badge (only if user is logged in) */}
+          {user && (
+            <Badge variant="secondary" className="hidden sm:flex">
+              {credits} crédits
+            </Badge>
+          )}
+
+          {/* Auth Buttons */}
+          {user ? (
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSignOut}
+                className="transition-smooth flex items-center space-x-2"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </motion.div>
+          ) : (
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link to="/login">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="transition-smooth flex items-center space-x-2"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span className="hidden sm:inline">Login</span>
+                </Button>
+              </Link>
+            </motion.div>
+          )}
+
           {/* Theme Toggle */}
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button

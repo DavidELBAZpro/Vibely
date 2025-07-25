@@ -1,15 +1,22 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Sparkles, Send, RotateCcw } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Textarea } from '../components/ui/textarea';
-import { Badge } from '../components/ui/badge';
-import { Label } from '../components/ui/label';
-import { AILoader } from '../components/AILoader';
-import { useStore, Playlist, Track } from '../store/useStore';
-import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Sparkles, Send, RotateCcw } from "lucide-react";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Textarea } from "../components/ui/textarea";
+import { Badge } from "../components/ui/badge";
+import { Label } from "../components/ui/label";
+import { AILoader } from "../components/AILoader";
+import { useStore, Playlist, Track } from "../store/useStore";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { useCredits } from "@/contexts/CreditContext";
+import { RequireAuth } from '../components/auth/RequireAuth';
 
 export interface OpenApiResponse {
   playlist: {
@@ -23,32 +30,50 @@ export interface OpenApiResponse {
 }
 
 const musicTags = [
-  'House', 'Pop', 'Rock', 'AfroHouse', 'DeepHouse', 'Disco', 'Funk', 'Techno', 'Reggaeton', 'Trap'
+  "House",
+  "Pop",
+  "Rock",
+  "AfroHouse",
+  "DeepHouse",
+  "Disco",
+  "Funk",
+  "Techno",
+  "Reggaeton",
+  "Trap",
 ];
 
 const moodTags = [
-  'Chill', 'Party', 'Good Night', 'Sport', 'Study', 'Romantic', 'Happy', 'Focus', 'Sad', 'Energetic'
+  "Chill",
+  "Party",
+  "Good Night",
+  "Sport",
+  "Study",
+  "Romantic",
+  "Happy",
+  "Focus",
+  "Sad",
+  "Energetic",
 ];
 
-export default function GeneratePlaylist() {
-  const [prompt, setPrompt] = useState('');
+function GeneratePlaylistContent() {
+  const [prompt, setPrompt] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [playlistLength, setPlaylistLength] = useState(5);
-  
-  const { isGenerating, setIsGenerating, addPlaylist, setCurrentPlaylist } = useStore();
+
+  const { isGenerating, setIsGenerating, addPlaylist, setCurrentPlaylist } =
+    useStore();
   const { toast } = useToast();
+  const { credits, updateCredits } = useCredits();
   const navigate = useNavigate();
 
   const toggleTag = (tag: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
   };
 
   const resetForm = () => {
-    setPrompt('');
+    setPrompt("");
     setSelectedTags([]);
     setPlaylistLength(5);
   };
@@ -58,68 +83,87 @@ export default function GeneratePlaylist() {
       toast({
         title: "Prompt required",
         description: "Please enter a description for your playlist.",
-        variant: "destructive"
+        variant: "destructive",
       });
+      return;
+    }
+    if (credits < 1) {
+      toast({
+        title: "Insufficient credits",
+        description:
+          "You need at least 1 credit to generate a playlist. Please purchase more credits.",
+        variant: "destructive",
+      });
+      navigate("/pricing");
       return;
     }
 
     setIsGenerating(true);
-    
+
     try {
       toast({
         title: "🎵 Generating playlist...",
-        description: "Our AI is crafting your perfect playlist. This may take a moment.",
+        description:
+          "Our AI is crafting your perfect playlist. This may take a moment.",
       });
 
-
       // API call
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/generate-playlist`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt: prompt.trim(),
-        length: playlistLength,
-        tags: selectedTags,
-      }),
-    });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/generate-playlist`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt: prompt.trim(),
+            length: playlistLength,
+            tags: selectedTags,
+          }),
+        }
+      );
 
-    if (!response.ok) {
-      throw new Error('Failed to generate playlist');
-    }
+      if (!response.ok) {
+        throw new Error("Failed to generate playlist");
+      }
 
-    const data: OpenApiResponse = await response.json();
+      const data: OpenApiResponse = await response.json();
 
-      
       const newPlaylist: Playlist = {
         id: Date.now().toString(),
-        name: data.playlist.playlistTitle || `Generated Playlist ${new Date().toLocaleDateString()}`,
+        name:
+          data.playlist.playlistTitle ||
+          `Generated Playlist ${new Date().toLocaleDateString()}`,
         tracks: data.playlist.tracks || [],
         prompt: prompt.trim(),
         tags: selectedTags,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
 
       addPlaylist(newPlaylist);
       setCurrentPlaylist(newPlaylist);
 
+      // Update credits
+      await updateCredits(credits - 1);
+
       toast({
         title: "🎉 Playlist generated!",
-        description: `Your ${playlistLength}-track playlist is ready to rock!`,
+        description: `Your ${playlistLength}-track playlist is ready to rock! ${
+          credits - 1
+        } credits remaining.`,
       });
 
       // Reset form
       resetForm();
-      
-      // Navigate to my playlists
-      navigate('/my-playlists');
 
+      // Navigate to my playlists
+      navigate("/my-playlists");
     } catch (error) {
       toast({
         title: "Generation failed",
-        description: "Something went wrong while generating your playlist. Please try again.",
-        variant: "destructive"
+        description:
+          "Something went wrong while generating your playlist. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsGenerating(false);
@@ -147,8 +191,12 @@ export default function GeneratePlaylist() {
               Generate Your Playlist
             </h1>
             <p className="text-xl text-muted-foreground">
-              Describe your perfect musical moment and let AI create the soundtrack
+              Describe your perfect musical moment and let AI create the
+              soundtrack
             </p>
+            <Badge variant="secondary" className="mt-4 text-lg px-4 py-2">
+              {credits} crédits disponibles
+            </Badge>
           </div>
 
           <Card className="backdrop-blur-sm bg-card/50 border-border/50">
@@ -173,8 +221,13 @@ export default function GeneratePlaylist() {
                   maxLength={300}
                   aria-describedby="prompt-help"
                 />
-                <div id="prompt-help" className="flex justify-between text-sm text-muted-foreground">
-                  <span>Be specific about mood, genre, tempo, or any preferences</span>
+                <div
+                  id="prompt-help"
+                  className="flex justify-between text-sm text-muted-foreground"
+                >
+                  <span>
+                    Be specific about mood, genre, tempo, or any preferences
+                  </span>
                   <span>{prompt.length}/300</span>
                 </div>
               </div>
@@ -184,13 +237,19 @@ export default function GeneratePlaylist() {
                 <Label className="text-base font-medium">Music Styles</Label>
                 <div className="flex flex-wrap gap-2 max-h-100 overflow-y-auto">
                   {musicTags.map((tag) => (
-                    <motion.div key={tag} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <motion.div
+                      key={tag}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
                       <Badge
-                        variant={selectedTags.includes(tag) ? "default" : "outline"}
+                        variant={
+                          selectedTags.includes(tag) ? "default" : "outline"
+                        }
                         className={`cursor-pointer transition-smooth ${
-                          selectedTags.includes(tag) 
-                            ? 'gradient-primary text-white shadow-glow-primary/50' 
-                            : 'hover:bg-primary/10'
+                          selectedTags.includes(tag)
+                            ? "gradient-primary text-white shadow-glow-primary/50"
+                            : "hover:bg-primary/10"
                         }`}
                         onClick={() => toggleTag(tag)}
                       >
@@ -206,13 +265,19 @@ export default function GeneratePlaylist() {
                 <Label className="text-base font-medium">Moods</Label>
                 <div className="flex flex-wrap gap-2 max-h-100 overflow-y-auto">
                   {moodTags.map((tag) => (
-                    <motion.div key={tag} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <motion.div
+                      key={tag}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
                       <Badge
-                        variant={selectedTags.includes(tag) ? "default" : "outline"}
+                        variant={
+                          selectedTags.includes(tag) ? "default" : "outline"
+                        }
                         className={`cursor-pointer transition-smooth ${
-                          selectedTags.includes(tag) 
-                            ? 'gradient-accent text-white shadow-glow-accent/50' 
-                            : 'hover:bg-accent/10'
+                          selectedTags.includes(tag)
+                            ? "gradient-accent text-white shadow-glow-accent/50"
+                            : "hover:bg-accent/10"
                         }`}
                         onClick={() => toggleTag(tag)}
                       >
@@ -248,10 +313,16 @@ export default function GeneratePlaylist() {
                   {[3, 5, 8, 10, 15, 20].map((length) => (
                     <Button
                       key={length}
-                      variant={playlistLength === length ? "default" : "outline"}
+                      variant={
+                        playlistLength === length ? "default" : "outline"
+                      }
                       size="sm"
                       onClick={() => setPlaylistLength(length)}
-                      className={playlistLength === length ? 'gradient-primary text-white' : ''}
+                      className={
+                        playlistLength === length
+                          ? "gradient-primary text-white"
+                          : ""
+                      }
                     >
                       {length} tracks
                     </Button>
@@ -268,13 +339,9 @@ export default function GeneratePlaylist() {
                   disabled={!prompt.trim()}
                 >
                   <Send className="w-5 h-5 mr-2" />
-                  Generate Playlist
+                  Generate Playlist {credits < 1 ? '(No credits)' : '(1 credit)'}
                 </Button>
-                <Button
-                  onClick={resetForm}
-                  variant="outline"
-                  size="lg"
-                >
+                <Button onClick={resetForm} variant="outline" size="lg">
                   <RotateCcw className="w-5 h-5 mr-2" />
                   Reset
                 </Button>
@@ -284,5 +351,14 @@ export default function GeneratePlaylist() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+
+export default function GeneratePlaylist() {
+  return (
+    <RequireAuth>
+      <GeneratePlaylistContent />
+    </RequireAuth>
   );
 }

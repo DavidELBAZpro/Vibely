@@ -1,26 +1,32 @@
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { Headphones, Sparkles, Music, Play, Zap } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { Headphones, Sparkles, Music, Play, Zap } from "lucide-react";
+import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Landing() {
+  const { user } = useAuth();
+
   const features = [
     {
       icon: Sparkles,
       title: "AI-Powered Generation",
-      description: "Our advanced AI creates personalized playlists based on your unique prompts and musical preferences."
+      description:
+        "Our advanced AI creates personalized playlists based on your unique prompts and musical preferences.",
     },
     {
       icon: Music,
       title: "Mood & Style Tags",
-      description: "Choose from 20 curated tags covering music styles and moods to fine-tune your perfect playlist."
+      description:
+        "Choose from 20 curated tags covering music styles and moods to fine-tune your perfect playlist.",
     },
     {
       icon: Zap,
       title: "Instant Results",
-      description: "Get your custom playlist in seconds with direct YouTube links for immediate listening."
-    }
+      description:
+        "Get your custom playlist in seconds with direct YouTube links for immediate listening.",
+    },
   ];
 
   return (
@@ -29,7 +35,7 @@ export default function Landing() {
       <section className="relative overflow-hidden">
         {/* Background Gradient */}
         <div className="absolute inset-0 gradient-secondary opacity-30" />
-        
+
         <div className="relative container mx-auto px-4 py-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -45,14 +51,14 @@ export default function Landing() {
             >
               Create Perfect Playlists with AI
             </motion.h1>
-            
+
             <motion.p
               className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
             >
-              Transform your musical ideas into curated playlists instantly. 
+              Transform your musical ideas into curated playlists instantly.
               Just describe your vibe, and let our AI do the magic.
             </motion.p>
 
@@ -62,13 +68,13 @@ export default function Landing() {
               transition={{ delay: 0.6, duration: 0.8 }}
               className="float-to-center"
             >
-              <Link to="/generate-playlist">
+              <Link to={user ? "/generate-playlist" : "/login"}>
                 <Button
                   size="lg"
                   className="gradient-primary text-white hover:shadow-glow-primary transition-spring text-lg px-8 py-6 rounded-full"
                 >
                   <Headphones className="w-6 h-6 mr-2" />
-                  🎧 Generate My Playlist
+                  {user ? "🎧 Generate My Playlist" : "🎧 Get Started"}
                 </Button>
               </Link>
             </motion.div>
@@ -115,7 +121,8 @@ export default function Landing() {
               Why Choose Vibely?
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Experience the future of music discovery with our cutting-edge AI technology
+              Experience the future of music discovery with our cutting-edge AI
+              technology
             </p>
           </motion.div>
 
@@ -136,8 +143,12 @@ export default function Landing() {
                       <div className="w-16 h-16 gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
                         <Icon className="w-8 h-8 text-white" />
                       </div>
-                      <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                      <p className="text-muted-foreground">{feature.description}</p>
+                      <h3 className="text-xl font-semibold mb-3">
+                        {feature.title}
+                      </h3>
+                      <p className="text-muted-foreground">
+                        {feature.description}
+                      </p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -161,15 +172,16 @@ export default function Landing() {
               Ready to Discover Your Next Favorite Song?
             </h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Join thousands of music lovers who've already created amazing playlists with Vibely
+              Join thousands of music lovers who've already created amazing
+              playlists with Vibely
             </p>
-            <Link to="/generate-playlist">
+            <Link to={user ? "/generate-playlist" : "/login"}>
               <Button
                 size="lg"
                 className="gradient-primary text-white hover:shadow-glow-primary transition-spring text-lg px-8 py-6 rounded-full"
               >
                 <Play className="w-6 h-6 mr-2" />
-                Start Creating Now
+                {user ? "Start Creating Now" : "Sign Up & Start Creating"}
               </Button>
             </Link>
           </motion.div>
